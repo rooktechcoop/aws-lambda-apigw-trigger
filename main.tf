@@ -48,8 +48,17 @@ locals {
 
 
 ## Lambda
+resource "aws_api_gateway_resource" "api_gateway_resource" {
+  count =  var.api_gateway_resource_id = "" ? 1 : 0
+
+  rest_api_id = var.api_gateway_id
+  parent_id   = var.api_gateway_root_resource_id
+  path_part   = var.resource_path
+}
+
 resource "aws_lambda_permission" "lambda_permission" {
   depends_on = [aws_api_gateway_resource.api_gateway_resource]
+
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = var.lambda_function_name
@@ -60,23 +69,10 @@ resource "aws_lambda_permission" "lambda_permission" {
 }
 
 
-resource "aws_api_gateway_resource" "api_gateway_resource" {
-  count =  length(var.api_gateway_resource_id) > 0 ? 1 : 0
-
-  rest_api_id = var.api_gateway_id
-  parent_id   = var.api_gateway_root_resource_id
-  path_part   = var.resource_path
-}
-
-locals {
-  reosurce_id = length(var.api_gateway_resource_id) == 0 ? aws_api_gateway_resource.api_gateway_resource[0].id : var.api_gateway_resource_id
-}
-
-
 resource "aws_api_gateway_method" "api_gateway_method" {
 
   rest_api_id   = var.api_gateway_id
-  resource_id   = local.reosurce_id
+  resource_id   = length(var.api_gateway_resource_id) == 0 ? aws_api_gateway_resource.api_gateway_resource[0].id : var.api_gateway_resource_id
   http_method   = var.request_method
   authorization = length(var.authorizer_id) > 0 ? var.authorizer_type : "NONE"
   authorizer_id = length(var.authorizer_id) > 0 ? var.authorizer_id : ""
@@ -85,7 +81,7 @@ resource "aws_api_gateway_method" "api_gateway_method" {
 resource "aws_api_gateway_integration" "integration" {
 
   rest_api_id             = var.api_gateway_id
-  resource_id             = local.reosurce_id
+  resource_id             = length(var.api_gateway_resource_id) == 0 ? aws_api_gateway_resource.api_gateway_resource[0].id : var.api_gateway_resource_id
   http_method             = var.request_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
