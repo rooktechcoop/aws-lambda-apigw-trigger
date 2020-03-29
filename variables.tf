@@ -33,6 +33,7 @@ variable "authorizer_id" {
 variable "authorizer_type" {
   description = "Set authorizer type"
   type        = string
+  default     = ""
 }
 
 variable "stage_name" {
