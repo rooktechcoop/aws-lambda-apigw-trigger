@@ -52,7 +52,9 @@ variable "api_gateway_resource_path" {
   default     = ""
 }
 
-
+variable "module_dependency" {
+  default = ""
+}
 
 # -----------------------------------------------------------------------------
 # Variables: CORS-related

@@ -46,10 +46,16 @@ locals {
   )}"
 }
 
+resource "null_resource" "module_dependency" {
+  triggers = {
+    dependency = var.module_dependency
+  }
+}
 
 ## Lambda
 resource "aws_api_gateway_resource" "api_gateway_resource" {
   count =  var.api_gateway_resource_id == "" ? 1 : 0
+  depends_on = [null_resource.module_dependency]
 
   rest_api_id = var.api_gateway_id
   parent_id   = var.api_gateway_root_resource_id
@@ -57,7 +63,7 @@ resource "aws_api_gateway_resource" "api_gateway_resource" {
 }
 
 resource "aws_lambda_permission" "lambda_permission" {
-  depends_on = [aws_api_gateway_resource.api_gateway_resource]
+  depends_on = [null_resource.module_dependency]
 
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
@@ -70,6 +76,7 @@ resource "aws_lambda_permission" "lambda_permission" {
 
 
 resource "aws_api_gateway_method" "api_gateway_method" {
+  depends_on = [null_resource.module_dependency]
 
   rest_api_id   = var.api_gateway_id
   resource_id   = length(var.api_gateway_resource_id) == 0 ? aws_api_gateway_resource.api_gateway_resource[0].id : var.api_gateway_resource_id
@@ -79,6 +86,7 @@ resource "aws_api_gateway_method" "api_gateway_method" {
 }
 
 resource "aws_api_gateway_integration" "integration" {
+  depends_on = [null_resource.module_dependency]
 
   rest_api_id             = var.api_gateway_id
   resource_id             = length(var.api_gateway_resource_id) == 0 ? aws_api_gateway_resource.api_gateway_resource[0].id : var.api_gateway_resource_id
@@ -89,7 +97,7 @@ resource "aws_api_gateway_integration" "integration" {
 }
 
 resource "aws_api_gateway_deployment" "api_gateway_deployment" {
-  depends_on = [aws_api_gateway_integration.integration]
+  depends_on = [null_resource.module_dependency]
 
   rest_api_id = var.api_gateway_id
   stage_name  = var.stage_name
@@ -100,6 +108,7 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment" {
 
 resource "aws_api_gateway_method" "cors_method" {
   count = var.cors_enable && length(var.api_gateway_resource_id) == 0 ? 1 : 0
+  depends_on = [null_resource.module_dependency]
 
   rest_api_id   = var.api_gateway_id
   resource_id   = aws_api_gateway_resource.api_gateway_resource[0].id
@@ -110,6 +119,7 @@ resource "aws_api_gateway_method" "cors_method" {
 # aws_api_gateway_integration.
 resource "aws_api_gateway_integration" "cors_integration" {
   count = var.cors_enable && length(var.api_gateway_resource_id) == 0 ? 1 : 0
+  depends_on = [null_resource.module_dependency]
 
   rest_api_id = var.api_gateway_id
   resource_id = aws_api_gateway_resource.api_gateway_resource[0].id
@@ -125,6 +135,7 @@ resource "aws_api_gateway_integration" "cors_integration" {
 # aws_api_gateway_integration_response._
 resource "aws_api_gateway_integration_response" "cors_response" {
   count = var.cors_enable && length(var.api_gateway_resource_id) == 0 ? 1 : 0
+  depends_on = [null_resource.module_dependency]
 
   rest_api_id = var.api_gateway_id
   resource_id = aws_api_gateway_resource.api_gateway_resource[0].id
@@ -139,6 +150,7 @@ resource "aws_api_gateway_integration_response" "cors_response" {
 # aws_api_gateway_method_response._
 resource "aws_api_gateway_method_response" "cors_method_response" {
   count = var.cors_enable && length(var.api_gateway_resource_id) == 0 ? 1 : 0
+  depends_on = [null_resource.module_dependency]
 
   rest_api_id = var.api_gateway_id
   resource_id = aws_api_gateway_resource.api_gateway_resource[0].id
@@ -152,4 +164,13 @@ resource "aws_api_gateway_method_response" "cors_method_response" {
   }
 
   depends_on = [aws_api_gateway_method.cors_method]
+}
+
+
+resource "null_resource" "module_is_complete" {
+  depends_on = [aws_lambda_permission.lambda_permission, aws_api_gateway_method.api_gateway_method, aws_api_gateway_deployment.api_gateway_deployment, aws_api_gateway_integration.integration]
+
+  provisioner "local-exec" {
+    command = "echo Module complete"
+  }
 }
