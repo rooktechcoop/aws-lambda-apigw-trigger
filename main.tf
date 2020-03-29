@@ -166,10 +166,7 @@ resource "aws_api_gateway_method_response" "cors_method_response" {
 
 
 resource "null_resource" "module_is_complete" {
-  depends_on = concat(
-    [aws_lambda_permission.lambda_permission, aws_api_gateway_method.api_gateway_method, aws_api_gateway_deployment.api_gateway_deployment, aws_api_gateway_integration.integration],
-    length(var.api_gateway_resource_id) == 0 ? [aws_api_gateway_resource.api_gateway_resource[0]] : []
-  )
+  depends_on = concat([aws_lambda_permission.lambda_permission, aws_api_gateway_method.api_gateway_method, aws_api_gateway_deployment.api_gateway_deployment, aws_api_gateway_integration.integration],length(var.api_gateway_resource_id) == 0 ? [aws_api_gateway_resource.api_gateway_resource[0]] : [])
 
   provisioner "local-exec" {
     command = "echo Module complete"
