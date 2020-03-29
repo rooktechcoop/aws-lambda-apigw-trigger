@@ -49,7 +49,7 @@ locals {
 
 ## Lambda
 resource "aws_lambda_permission" "lambda_permission" {
-
+  depends_on = [aws_api_gateway_resource.api_gateway_resource]
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = var.lambda_function_name
@@ -69,14 +69,14 @@ resource "aws_api_gateway_resource" "api_gateway_resource" {
 }
 
 locals {
-  reource_id = length(var.api_gateway_resource_id) == 0 ? aws_api_gateway_resource.api_gateway_resource[0].id : var.api_gateway_resource_id
+  reosurce_id = length(var.api_gateway_resource_id) == 0 ? aws_api_gateway_resource.api_gateway_resource[0].id : var.api_gateway_resource_id
 }
 
 
 resource "aws_api_gateway_method" "api_gateway_method" {
 
   rest_api_id   = var.api_gateway_id
-  resource_id   = local.reource_id
+  resource_id   = local.reosurce_id
   http_method   = var.request_method
   authorization = length(var.authorizer_id) > 0 ? var.authorizer_type : "NONE"
   authorizer_id = length(var.authorizer_id) > 0 ? var.authorizer_id : ""
@@ -85,7 +85,7 @@ resource "aws_api_gateway_method" "api_gateway_method" {
 resource "aws_api_gateway_integration" "integration" {
 
   rest_api_id             = var.api_gateway_id
-  resource_id             = local.reource_id
+  resource_id             = local.reosurce_id
   http_method             = var.request_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"

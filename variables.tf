@@ -44,7 +44,6 @@ variable "stage_name" {
 
 variable "api_gateway_resource_id" {
   description = "The id of your resource , if not specified one it is going to be created"
-  type        = string
   default     = ""
 }
 
