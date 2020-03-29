@@ -2,8 +2,8 @@ variable "lambda_function_name" {
   description = "The name of lambda"
 }
 
-variable "lambda_invoke_arn" {
-  description = "The lambda invoke arn"
+variable "lambda_invoke_uri_arn" {
+  description = "The lambda invoke uri arn"
 }
 
 variable "api_gateway_id" {
