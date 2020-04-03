@@ -11,16 +11,6 @@ variable "api_gateway_id" {
   default     = ""
 }
 
-variable "api_gateway_root_resource_id" {
-  description = "The parent resource id of the api gateway"
-  default     = ""
-}
-
-variable "resource_path" {
-  description = "A path to the resource"
-  default     = "path"
-}
-
 variable "request_method" {
   description = "The http request method, e.g: GET"
 }
