@@ -51,7 +51,7 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment" {
 
 
 resource "null_resource" "module_is_complete" {
-  depends_on = [aws_lambda_permission.lambda_permission, aws_api_gateway_method.api_gateway_method, aws_api_gateway_deployment.api_gateway_deployment, aws_api_gateway_integration.integration, aws_api_gateway_resource.api_gateway_resource]
+  depends_on = [aws_lambda_permission.lambda_permission, aws_api_gateway_method.api_gateway_method, aws_api_gateway_deployment.api_gateway_deployment, aws_api_gateway_integration.integration]
 
   provisioner "local-exec" {
     command = "echo Module complete"
