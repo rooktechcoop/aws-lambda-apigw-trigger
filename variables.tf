@@ -42,6 +42,11 @@ variable "api_gateway_resource_path" {
   default     = ""
 }
 
+variable "enable_lambda_permission" {
+  description = "Whether the lamba permission resource created or not. If another method already invoke this lambda this should be false"
+  default     = true
+}
+
 variable "module_dependency" {
   default = ""
 }

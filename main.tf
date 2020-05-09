@@ -10,6 +10,7 @@ resource "null_resource" "module_dependency" {
 
 ## Lambda
 resource "aws_lambda_permission" "lambda_permission" {
+  count = var.lambda_permission ? 1 : 0
   depends_on = [null_resource.module_dependency]
 
   statement_id  = "AllowExecutionFromAPIGateway"
@@ -51,7 +52,7 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment" {
 
 
 resource "null_resource" "module_is_complete" {
-  depends_on = [aws_lambda_permission.lambda_permission, aws_api_gateway_method.api_gateway_method, aws_api_gateway_deployment.api_gateway_deployment, aws_api_gateway_integration.integration]
+  depends_on = [aws_api_gateway_method.api_gateway_method, aws_api_gateway_deployment.api_gateway_deployment, aws_api_gateway_integration.integration]
 
   provisioner "local-exec" {
     command = "echo Module complete"
