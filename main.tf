@@ -10,7 +10,7 @@ resource "null_resource" "module_dependency" {
 
 ## Lambda
 resource "aws_lambda_permission" "lambda_permission" {
-  count = var.lambda_permission ? 1 : 0
+  count = var.enable_lambda_permission ? 1 : 0
   depends_on = [null_resource.module_dependency]
 
   statement_id  = "AllowExecutionFromAPIGateway"
